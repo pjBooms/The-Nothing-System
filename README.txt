@@ -1,5 +1,7 @@
 Copyright (c) 2012, Nikita Lipsky, Excelsior LLC.
 
+... because everything comes from nothing.
+
 PREFACE
 
 The Nothing System is a free open source project aiming to replace HTML+JavaScript based Internet.
