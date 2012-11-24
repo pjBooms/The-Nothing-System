@@ -1,0 +1,40 @@
+TODO list:
+
+-- Divide main window in two trays: system and user. System tray is used for standard output window and text windows with commands. 
+
+-- Add useful commands to the system that are collected in text files (with .tool extension).
+
+-- Add mark button to the title bar of the text windows to mark current window (currently last focused window is used for current window).
+
+-- Integrate the system with IDEs: currently it is too inconvenient to write a new sources of the system in it.
+
+-- Probably it will be possible to add JavaFX look-n-feel to the system.
+
+-- Extend command concept into any Java expression.
+
+-- Develop classloading mechanism: currently any new class written in the system is loaded by its own classloader and classes cannot import each other 
+   (compilation error occurs).
+
+-- Introduce persistent objects: objects that can be serialized and deserialized.
+
+-- Introduce persistent libraries to store persistent objects and mechanism to put objects into the libraries via commands.
+   Commands may receive persistent objects form a library as arguments via special syntax.
+
+-- Introduce visible persistent objects that can be inserted into a text.
+
+-- Develop GUI visual editor that creates GUI that can be stored in a library as document. 
+   No source generation should be employed -- all functionality is linked via command only.
+   There should be three variant for the GUI editors: JavaFX/Swing/SWT (JavaFX in a first place).
+
+-- Integrate the system with a web server: classes and libraries must be put on the server.
+
+-- Redevelop classloading mechanism to load classes and libraries from a web server (URLs mangling is subtask of this).
+
+-- Develop caching mechanism for classes and objects that come from a web server.
+
+-- Develop desktop integration for application that comes from a web server: 
+    - shortcuts in start menu, desktop, etc.
+    - downloading mechanism allowing to get an application that is on a webserver as a whole -- freeze conception -- (and uninstall menu item as well).
+
+-- Develop mobile platform integration.
+

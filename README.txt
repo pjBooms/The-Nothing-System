@@ -64,6 +64,11 @@ With this basic you may extend the system writing your own commands right in the
 
 It is only the beginning of the system written in one day -- http://www.excelsior.ru/news/hack-day-one.
 
+HOW TO CONTRIBUTE 
+
+You may find TODO.txt in this directory with the pool of tasks. 
+If you would like to get some task to develop -- please contact me -- nlipsky@excelsior-usa.com to discuss the details.
+
 To be continued ...
 
 
