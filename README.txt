@@ -14,11 +14,11 @@ The target platform of the system is Java however. So basically it is Oberon Sys
 
 HOW TO BUILD
 
-   Correct JDK_DIR environment variable in build.bat and execute it.
+   Correct JDK_DIR environment variable in build.bat|build.sh and execute it.
 
 HOW TO RUN
 
-   Correct JDK_DIR environment variable in run.bat and execute it.
+   Correct JDK_DIR environment variable in run.bat|run.sh and execute it.
 
 PLAING WITH THE NOTHING SYSTEM
 
