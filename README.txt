@@ -69,6 +69,16 @@ HOW TO CONTRIBUTE
 You may find TODO.txt in this directory with the pool of tasks. 
 If you would like to get some task to develop -- please contact me -- nlipsky@excelsior-usa.com to discuss the details.
 
+REFERENCE IMPLEMENTATION
+
+I know that Oberon home page looks ugly with many broken links, pity :(. And it is hard to find a page where you can download the system.
+Here it is -- ftp://ftp.ethoberon.ethz.ch/ETHOberon
+There are distros for Windows, Linux, Mac in it and scientific papers explaining the concepts.
+System requirements: 32-bit systems with non-wide monitor (change resoltion to non-wide temporally if you have wide) else you may face with glitches.
+If you are able to start it, do not be disappointed with its very unusual and inconvinient user interface. 
+Try to read "Introduction" document carefully it is enough to start exploring the system. 
+If you cut through the Oberon system glitches you will get a lot of fun!
+
 To be continued ...
 
 
