@@ -78,17 +78,36 @@ public class Stylepad extends JPanel {
         return null;
     }
 
+    private void prependMouseListener(JTextPane p, MouseListener l) {
+        MouseListener[] listeners = p.getMouseListeners();
+        for (MouseListener listener: listeners) {
+            p.removeMouseListener(listener);
+        }
+        p.addMouseListener(l);
+        for (MouseListener listener: listeners) {
+            p.addMouseListener(listener);
+        }
+    }
+
     protected JTextPane createEditor() {
         StyleContext sc = new StyleContext();
         final DefaultStyledDocument doc = new DefaultStyledDocument(sc);
         final JTextPane p = new JTextPane(doc);
 
         final MyMouseMotionAdapter motion = new MyMouseMotionAdapter(p);
-        p.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
+        prependMouseListener(p, new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
                 String cmd = retrieveCommand(p, e.getX(), e.getY());
                 if ((cmd != null) && Kernel.isCommand(cmd)) {
+                    e.consume();
                     Kernel.executeCommand(cmd);
+                }
+            }
+
+            public void mouseReleased(MouseEvent e) {
+                String cmd = retrieveCommand(p, e.getX(), e.getY());
+                if ((cmd != null) && Kernel.isCommand(cmd)) {
+                    e.consume();
                 }
             }
 
@@ -97,15 +116,22 @@ public class Stylepad extends JPanel {
             }
         });
 
+        p.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                motion.underline(false);
+            }
+        });
+
         p.addMouseMotionListener(motion);
         p.addCaretListener(new CaretListener() {
             public void caretUpdate(CaretEvent e) {
-                Main.curSelection = editor;
+                if (p.getSelectedText() != null) {
+                    Main.curSelection = editor;
+                }
             }
         });
-        p.setDragEnabled(true);
 
-        //p.getCaret().setBlinkRate(0);
+        p.setDragEnabled(true);
 
         return p;
     }
@@ -153,6 +179,11 @@ public class Stylepad extends JPanel {
             if (!b) {
                 lastStart = -1;
                 lastEnd = -1;
+            }
+            if (b) {
+                editor.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            } else {
+                editor.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
             }
         }
 
