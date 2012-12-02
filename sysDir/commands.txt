@@ -1,4 +1,4 @@
-Sys.createWindow
+Sys.newText
 Sys.save 
 Sys.open
 Sys.compile

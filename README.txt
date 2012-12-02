@@ -30,12 +30,12 @@ Arguments of the command are space-delimited constants after the command.
 In the future any Java expression can be used as a command.
 
 On the right of the main window you will see two internal text windows. 
-Upper text window is standard output. Lower is basic commands window such as command creating a new window (Sys.createWindow),
+Upper text window is standard output. Lower is basic commands window such as command creating a new text window (Sys.newText),
 command saving the text (Sys.save), command opening saved text (Sys.open), command compiling a new source of the system (Sys.compile).
 
 With this basic you may extend the system writing your own commands right in the system: 
 
-  1. First you need to create a new text window executing Sys.createWindow by clicking on the appropriate text.
+  1. First you need to create a new text window executing Sys.newText by clicking on the appropriate text.
 
   2. Write a Java source code. For instance
 

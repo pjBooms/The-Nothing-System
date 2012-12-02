@@ -27,11 +27,11 @@ import java.io.*;
  */
 public class Sys {
 
-    public static void createWindow() {
+    public static void newText() {
         Main.demo.createInternalFrame();
     }
 
-    public static void createWindow(String title) {
+    public static void newText(String title) {
         Main.TextWindow w = Main.demo.createInternalFrame();
         w.setTitle(title);
     }

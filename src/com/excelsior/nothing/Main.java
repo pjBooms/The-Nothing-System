@@ -105,7 +105,7 @@ public class Main extends JPanel {
         try {
             text = Sys.readText("commands.txt");
         } catch (IOException e){
-            text = "Sys.createWindow\nSys.save\nSys.open\nSys.compile";
+            text = "Sys.newText\nSys.save\nSys.open\nSys.compile";
         }
 
         commands.getPad().getEditor().setText(text);
