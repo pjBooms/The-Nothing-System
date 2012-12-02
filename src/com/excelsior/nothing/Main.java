@@ -35,40 +35,6 @@ import java.io.PrintStream;
  * Date: 05.10.12
  */
 public class Main extends JPanel {
-    int windowCount = 0;
-    JDesktopPane desktop = null;
-
-    public Integer FIRST_FRAME_LAYER = new Integer(1);
-    public Integer DEMO_FRAME_LAYER = new Integer(2);
-    public Integer PALETTE_LAYER = new Integer(3);
-
-    public int FRAME0_X = 15;
-    public int FRAME0_Y = 280;
-
-    public int FRAME0_WIDTH = 620;
-    public int FRAME0_HEIGHT = 430;
-
-    public int FRAMEOUT_X = 1020;
-    public int FRAMEOUT_Y = 0;
-
-    public int FRAMEOUT_WIDTH = 260;
-    public int FRAMEOUT_HEIGHT = 330;
-
-    public int FRAME_WIDTH = 600;
-    public int FRAME_HEIGHT = 450;
-
-    public int PALETTE_X = 1020;
-    public int PALETTE_Y = 330;
-
-    public int PALETTE_WIDTH = 260;
-    public int PALETTE_HEIGHT = 470;
-
-    // The preferred size of the demo
-    private int PREFERRED_WIDTH = 1280;
-    private int PREFERRED_HEIGHT = 800;
-    private JPanel panel = null;
-    public static Main demo;
-
 
     /**
      * main method allows us to run as a standalone demo.
@@ -85,61 +51,35 @@ public class Main extends JPanel {
                 System.exit(0);
             }
         });
-        frame.show();
+        frame.setVisible(true);
     }
-
-    static TextWindow commands;
-    static TextWindow frameOut;
 
     public Main() {
         UIManager.put("swing.boldMetal", Boolean.FALSE);
-        panel = new JPanel();
-        panel.setLayout(new BorderLayout());
 
-        desktop = new JDesktopPane();
+        configureDemoPanel();
+        desktop = buildSplitedDesktopPane(userPane, systemPane);
         getDemoPanel().add(desktop, BorderLayout.CENTER);
-
-        commands = createInternalFrame(PALETTE_LAYER, 1, 1);
-        commands.setBounds(PALETTE_X, PALETTE_Y, PALETTE_WIDTH, PALETTE_HEIGHT);
-        String text;
-        try {
-            text = Sys.readText("commands.txt");
-        } catch (IOException e){
-            text = "Sys.newText\nSys.save\nSys.open\nSys.compile";
-        }
-
-        commands.getPad().getEditor().setText(text);
-        commands.setTitle("System commands");
-
-        TextWindow frame1 = createInternalFrame(FIRST_FRAME_LAYER, 1, 1);
-        frame1.setBounds(FRAME0_X, FRAME0_Y, FRAME0_WIDTH, FRAME0_HEIGHT);
-        frame1.getPad().getEditor().setText("System.out.println hello\nAnother text");
-
-
-        frameOut = createInternalFrame(FIRST_FRAME_LAYER, 1, 1);
-        frameOut.setBounds(FRAMEOUT_X, FRAMEOUT_Y, FRAMEOUT_WIDTH, FRAMEOUT_HEIGHT);
-        frameOut.getPad().getEditor().setText("");
-        frameOut.setTitle("Output");
+        createDefaultFrame();
+        createOutputFrame();
+        createCommandsFrame();
 
         PrintStream stream = new PrintStream(new OutputStream(){
-                    @Override
-                    public void write(byte[] b, int off, int len) throws IOException {
-                        JTextComponent editor = frameOut.getPad().getEditor();
-                        editor.setText(editor.getText() + new String(b, off, len));
-                    }
+            @Override
+            public void write(byte[] b, int off, int len) throws IOException {
+                JTextComponent editor = frameOut.getPad().getEditor();
+                editor.setText(editor.getText() + new String(b, off, len));
+            }
 
-                    public void write(int b) throws IOException {
-                        JTextComponent editor = frameOut.getPad().getEditor();
-                        editor.setText(editor.getText() + new String(new byte[]{(byte)b}));
-                    }
-                });
+            public void write(int b) throws IOException {
+                JTextComponent editor = frameOut.getPad().getEditor();
+                editor.setText(editor.getText() + new String(new byte[]{(byte)b}));
+            }
+        });
 
         System.setOut(stream);
         System.setErr(stream);
     }
-
-    public static TextWindow curWindow;
-    public static JTextPane curSelection;
 
     public static JTextPane getCurEditor() {
         return (curWindow != null)? curWindow.getPad().getEditor(): null;
@@ -152,14 +92,12 @@ public class Main extends JPanel {
             this.pad = pad;
             pad.getEditor().addFocusListener(new FocusListener() {
                 public void focusGained(FocusEvent e) {
-                    if ((TextWindow.this != commands) && (TextWindow.this != frameOut)) {
+                    if ((TextWindow.this != commandsFrame) && (TextWindow.this != frameOut)) {
                         curWindow = TextWindow.this;
                     }
                 }
-
                 public void focusLost(FocusEvent e) {
                 }
-
             });
         }
 
@@ -170,40 +108,39 @@ public class Main extends JPanel {
 
 
     /**
-     * Create an internal frame and add a scrollable imageicon to it
+     * Creates a new frame in given pane.
+     *
+     * @return TextWindow
      */
-    public TextWindow createInternalFrame(Integer layer, int width, int height) {
-        TextWindow jif = new TextWindow(new Stylepad());
+    public TextWindow createInternalFrame(JDesktopPane pane,int width, int height) {
+        TextWindow window = new TextWindow(new Stylepad());
 
-        jif.setTitle("Frame " + windowCount + "  ");
+        window.setTitle("Frame " + windowCount + "  ");
 
-        jif.setClosable(true);
-        jif.setMaximizable(true);
-        jif.setIconifiable(true);
-        jif.setResizable(true);
+        window.setClosable(true);
+        window.setMaximizable(true);
+        window.setIconifiable(true);
+        window.setResizable(true);
 
-        jif.setBounds(20 * (windowCount % 10), 20 * (windowCount % 10), width, height);
-        jif.setContentPane(jif.getPad());
+        window.setBounds(20 * (windowCount % 10), 20 * (windowCount % 10), width, height);
+        window.setContentPane(window.getPad());
 
         windowCount++;
 
-        desktop.add(jif, layer);
+        pane.add(window, BorderLayout.CENTER);
 
         try {
-            jif.setSelected(true);
+            window.setSelected(true);
         } catch (java.beans.PropertyVetoException e2) {
         }
 
-        jif.show();
+        window.show();
 
-        return jif;
+        return window;
     }
 
     public TextWindow createInternalFrame() {
-        return createInternalFrame(getDemoFrameLayer(),
-                            getFrameWidth(),
-                            getFrameHeight()
-        );
+        return createInternalFrame(userPane, getFrameWidth(), getFrameHeight());
     }
 
     public JPanel getDemoPanel() {
@@ -222,8 +159,113 @@ public class Main extends JPanel {
         return FRAME_HEIGHT;
     }
 
-    public Integer getDemoFrameLayer() {
-        return DEMO_FRAME_LAYER;
+    /**
+     * Configures main window panel
+     *
+     * return void
+     */
+    private void configureDemoPanel()
+    {
+        panel = new JPanel();
+        panel.setLayout(new BorderLayout());
     }
 
+    /**
+     * Builds splitted horizontally pane.
+     *
+     * @param JDesktopPane userPane
+     * @param JDesktopPane systemPane
+     * @return JSplitPane
+     */
+    private JSplitPane buildSplitedDesktopPane (JDesktopPane userPane, JDesktopPane systemPane)
+    {
+        JSplitPane pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, userPane, systemPane);
+        pane.setContinuousLayout(true);
+        pane.setOneTouchExpandable(true);
+        pane.setDividerLocation(WINDOW_DIVIDER);
+        return pane;
+    }
+
+    /**
+     * Creates default frame in users pane.
+     * @return void
+     */
+    private void createDefaultFrame()
+    {
+        TextWindow frame1 = createInternalFrame(userPane, 1, 1);
+        frame1.setBounds(DEFAULT_FRAME_X, DEFAULT_FRAME_Y, FRAME_WIDTH, FRAME_HEIGHT);
+        frame1.getPad().getEditor().setText("System.out.println hello\nAnother text");
+    }
+
+    /**
+     * Creates command frame.
+     *
+     * @return void
+     */
+    private void createCommandsFrame()
+    {
+        commandsFrame = createInternalFrame(systemPane, 1, 1);
+        commandsFrame.setBounds(0, 0, FRAMESYSTEM_WIDTH, FRAMESYSTEM_HEIGHT);
+        String text;
+        try {
+            text = Sys.readText("commands.txt");
+        } catch (IOException e){
+            text = "Sys.createWindow\nSys.save\nSys.open\nSys.compile";
+        }
+
+        commandsFrame.getPad().getEditor().setText(text);
+        commandsFrame.setTitle("System commands");
+    }
+
+    /**
+     * Creates output frame.
+     *
+     * @return void
+     */
+    private void createOutputFrame()
+    {
+        frameOut = createInternalFrame(systemPane, 1, 1);
+        frameOut.setBounds(640, 0, FRAMEOUT_WIDTH, FRAMEOUT_HEIGHT);
+        frameOut.getPad().getEditor().setText("");
+        frameOut.setTitle("Output");
+    }
+
+    int windowCount = 0;
+
+    private JSplitPane desktop = null;
+
+    public int DEFAULT_FRAME_X = 15;
+    public int DEFAULT_FRAME_Y = 15;
+
+    public int FRAMEOUT_WIDTH = 640;
+    public int FRAMEOUT_HEIGHT = 190;
+
+    public int FRAMESYSTEM_WIDTH = 640;
+    public int FRAMESYSTEM_HEIGHT = 190;
+
+    public int FRAME_WIDTH = 600;
+    public int FRAME_HEIGHT = 450;
+
+    public int PALETTE_X = 1020;
+    public int PALETTE_Y = 330;
+
+    public int PALETTE_WIDTH = 260;
+    public int PALETTE_HEIGHT = 470;
+
+    public static Main demo;
+    public static TextWindow curWindow;
+    public static JTextPane curSelection;
+
+    static TextWindow commandsFrame;
+    static TextWindow frameOut;
+
+    // The preferred size of the demo
+    private int PREFERRED_WIDTH = 1280;
+    private int PREFERRED_HEIGHT = 800;
+    private final int WINDOW_DIVIDER = 600;
+
+    private JPanel panel = null;
+
+    private JDesktopPane userPane = new JDesktopPane();
+    private JDesktopPane systemPane = new JDesktopPane();
 }
