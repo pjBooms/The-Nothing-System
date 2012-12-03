@@ -32,7 +32,7 @@ import java.io.PrintStream;
 
 /**
  * @author kit
- * @author hedjou
+ * @author hedjuo
  * Date: 05.10.12
  */
 public class Main extends JPanel {
