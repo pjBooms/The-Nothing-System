@@ -32,19 +32,50 @@ import java.io.PrintStream;
 
 /**
  * @author kit
+ * @author hedjou
  * Date: 05.10.12
  */
 public class Main extends JPanel {
 
-    /**
-     * main method allows us to run as a standalone demo.
-     */
+    int windowCount = 0;
+
+    private JSplitPane desktop = null;
+
+    private static final int PREFERRED_WIDTH = 1280;
+    private static final int PREFERRED_HEIGHT = 800;
+
+    private static final int DEFAULT_FRAME_X = 0;
+    private static final int DEFAULT_FRAME_Y = 0;
+
+    private static final int FRAMEOUT_WIDTH = 370;
+    private static final int FRAMEOUT_HEIGHT = 400;
+
+    private static final int FRAMESYSTEM_WIDTH = FRAMEOUT_WIDTH;
+    private static final int FRAMESYSTEM_HEIGHT = PREFERRED_HEIGHT - FRAMEOUT_HEIGHT;
+
+    private static final int FRAME_WIDTH = 600;
+    private static final int FRAME_HEIGHT = 450;
+
+    public static Main system;
+    public static TextWindow curWindow;
+    public static JTextPane curSelection;
+
+    private static TextWindow commandsFrame;
+    private static TextWindow frameOut;
+
+    private static final int WINDOW_DIVIDER = 900;
+
+    private JPanel panel = null;
+
+    private JDesktopPane userPane = new JDesktopPane();
+    private JDesktopPane systemPane = new JDesktopPane();
+
     public static void main(String[] args) {
-        demo = new Main();
-        JFrame frame = new JFrame(demo.getName());
+        system = new Main();
+        JFrame frame = new JFrame(system.getName());
         frame.getContentPane().setLayout(new BorderLayout());
-        frame.getContentPane().add(demo.getDemoPanel(), BorderLayout.CENTER);
-        demo.getDemoPanel().setPreferredSize(new Dimension(demo.PREFERRED_WIDTH, demo.PREFERRED_HEIGHT));
+        frame.getContentPane().add(system.getSystemPanel(), BorderLayout.CENTER);
+        system.getSystemPanel().setPreferredSize(new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT));
         frame.pack();
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -57,9 +88,9 @@ public class Main extends JPanel {
     public Main() {
         UIManager.put("swing.boldMetal", Boolean.FALSE);
 
-        configureDemoPanel();
-        desktop = buildSplitedDesktopPane(userPane, systemPane);
-        getDemoPanel().add(desktop, BorderLayout.CENTER);
+        configureSystemPanel();
+        desktop = createSplitPane(userPane, systemPane);
+        getSystemPanel().add(desktop, BorderLayout.CENTER);
         createDefaultFrame();
         createOutputFrame();
         createCommandsFrame();
@@ -108,11 +139,11 @@ public class Main extends JPanel {
 
 
     /**
-     * Creates a new frame in given pane.
+     * Creates a new frame in a given pane.
      *
      * @return TextWindow
      */
-    public TextWindow createInternalFrame(JDesktopPane pane,int width, int height) {
+    public TextWindow createInternalFrame(JDesktopPane pane, int width, int height) {
         TextWindow window = new TextWindow(new Stylepad());
 
         window.setTitle("Frame " + windowCount + "  ");
@@ -143,7 +174,7 @@ public class Main extends JPanel {
         return createInternalFrame(userPane, getFrameWidth(), getFrameHeight());
     }
 
-    public JPanel getDemoPanel() {
+    public JPanel getSystemPanel() {
         return panel;
     }
 
@@ -160,26 +191,24 @@ public class Main extends JPanel {
     }
 
     /**
-     * Configures main window panel
-     *
-     * return void
+     * Configures main window panel.
      */
-    private void configureDemoPanel()
+    private void configureSystemPanel()
     {
         panel = new JPanel();
         panel.setLayout(new BorderLayout());
     }
 
     /**
-     * Builds splitted horizontally pane.
+     * Builds vertically split pane.
      *
-     * @param JDesktopPane userPane
-     * @param JDesktopPane systemPane
-     * @return JSplitPane
+     * @param userPane - pane with user windows
+     * @param systemPane -- pane containing command windows and standard output
+     * @return split pane
      */
-    private JSplitPane buildSplitedDesktopPane (JDesktopPane userPane, JDesktopPane systemPane)
+    private JSplitPane createSplitPane(JDesktopPane userPane, JDesktopPane systemPane)
     {
-        JSplitPane pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, userPane, systemPane);
+        JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, userPane, systemPane);
         pane.setContinuousLayout(true);
         pane.setOneTouchExpandable(true);
         pane.setDividerLocation(WINDOW_DIVIDER);
@@ -188,7 +217,6 @@ public class Main extends JPanel {
 
     /**
      * Creates default frame in users pane.
-     * @return void
      */
     private void createDefaultFrame()
     {
@@ -198,14 +226,12 @@ public class Main extends JPanel {
     }
 
     /**
-     * Creates command frame.
-     *
-     * @return void
+     * Creates a commands frame.
      */
     private void createCommandsFrame()
     {
         commandsFrame = createInternalFrame(systemPane, 1, 1);
-        commandsFrame.setBounds(0, 0, FRAMESYSTEM_WIDTH, FRAMESYSTEM_HEIGHT);
+        commandsFrame.setBounds(0, FRAMEOUT_HEIGHT, FRAMESYSTEM_WIDTH, FRAMESYSTEM_HEIGHT);
         String text;
         try {
             text = Sys.readText("sysDir/commands.txt");
@@ -218,54 +244,14 @@ public class Main extends JPanel {
     }
 
     /**
-     * Creates output frame.
-     *
-     * @return void
+     * Creates a standard output frame.
      */
     private void createOutputFrame()
     {
         frameOut = createInternalFrame(systemPane, 1, 1);
-        frameOut.setBounds(640, 0, FRAMEOUT_WIDTH, FRAMEOUT_HEIGHT);
+        frameOut.setBounds(0, 0, FRAMEOUT_WIDTH, FRAMEOUT_HEIGHT);
         frameOut.getPad().getEditor().setText("");
         frameOut.setTitle("Output");
     }
 
-    int windowCount = 0;
-
-    private JSplitPane desktop = null;
-
-    public int DEFAULT_FRAME_X = 15;
-    public int DEFAULT_FRAME_Y = 15;
-
-    public int FRAMEOUT_WIDTH = 640;
-    public int FRAMEOUT_HEIGHT = 190;
-
-    public int FRAMESYSTEM_WIDTH = 640;
-    public int FRAMESYSTEM_HEIGHT = 190;
-
-    public int FRAME_WIDTH = 600;
-    public int FRAME_HEIGHT = 450;
-
-    public int PALETTE_X = 1020;
-    public int PALETTE_Y = 330;
-
-    public int PALETTE_WIDTH = 260;
-    public int PALETTE_HEIGHT = 470;
-
-    public static Main demo;
-    public static TextWindow curWindow;
-    public static JTextPane curSelection;
-
-    static TextWindow commandsFrame;
-    static TextWindow frameOut;
-
-    // The preferred size of the demo
-    private int PREFERRED_WIDTH = 1280;
-    private int PREFERRED_HEIGHT = 800;
-    private final int WINDOW_DIVIDER = 600;
-
-    private JPanel panel = null;
-
-    private JDesktopPane userPane = new JDesktopPane();
-    private JDesktopPane systemPane = new JDesktopPane();
 }
