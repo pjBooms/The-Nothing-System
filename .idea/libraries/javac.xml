@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="javac">
-    <CLASSES>
-      <root url="jar://E:/jdk/lib/tools.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
