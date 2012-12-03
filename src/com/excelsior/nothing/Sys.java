@@ -28,11 +28,11 @@ import java.io.*;
 public class Sys {
 
     public static void newText() {
-        Main.demo.createInternalFrame();
+        Main.system.createInternalFrame();
     }
 
     public static void newText(String title) {
-        Main.TextWindow w = Main.demo.createInternalFrame();
+        Main.TextWindow w = Main.system.createInternalFrame();
         w.setTitle(title);
     }
 
@@ -74,7 +74,7 @@ public class Sys {
 
     public static void open(String file) throws IOException {
         String text = readText(file);
-        Main.TextWindow w = Main.demo.createInternalFrame();
+        Main.TextWindow w = Main.system.createInternalFrame();
         w.setTitle(file);
         w.getPad().getEditor().setText(text);
     }
