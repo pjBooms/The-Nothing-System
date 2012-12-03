@@ -234,7 +234,7 @@ public class Main extends JPanel {
         commandsFrame.setBounds(0, FRAMEOUT_HEIGHT, FRAMESYSTEM_WIDTH, FRAMESYSTEM_HEIGHT);
         String text;
         try {
-            text = Sys.readText("sysDir/commands.txt");
+            text = Sys.readText("commands.txt");
         } catch (IOException e){
             text = "Sys.newText\nSys.save\nSys.open\nSys.compile";
         }
