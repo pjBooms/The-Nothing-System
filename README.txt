@@ -83,6 +83,3 @@ To be continued ...
 
 ----------------------------
 Dedicated to my daughter Varvara who doesn't want to see scary pictures in the Internet
-
-
-
