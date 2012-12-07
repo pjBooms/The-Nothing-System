@@ -39,7 +39,8 @@ public class Kernel {
         }
         if (cache.containsKey(cmd)) return cache.get(cmd);
         MethodHandle m = MethodHandle.getMethodHandle(cmd);
-        cache.put(cmd, m != null);
+        if (m != null)
+            cache.put(cmd, m != null);
         return m != null;
     }
 

@@ -42,13 +42,13 @@ public class Main extends JPanel {
     private JSplitPane desktop = null;
 
     private static final int PREFERRED_WIDTH = 1280;
-    private static final int PREFERRED_HEIGHT = 800;
+    private static final int PREFERRED_HEIGHT = 600;
 
     private static final int DEFAULT_FRAME_X = 0;
     private static final int DEFAULT_FRAME_Y = 0;
 
     private static final int FRAMEOUT_WIDTH = 370;
-    private static final int FRAMEOUT_HEIGHT = 400;
+    private static final int FRAMEOUT_HEIGHT = 300;
 
     private static final int FRAMESYSTEM_WIDTH = FRAMEOUT_WIDTH;
     private static final int FRAMESYSTEM_HEIGHT = PREFERRED_HEIGHT - FRAMEOUT_HEIGHT;

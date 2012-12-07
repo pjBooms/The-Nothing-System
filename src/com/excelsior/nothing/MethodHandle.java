@@ -18,12 +18,10 @@
 
 package com.excelsior.nothing;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -32,6 +30,8 @@ import java.util.HashMap;
  * Date: 05.10.12
  */
 public class MethodHandle {
+
+    private static ArrayList<URL> baseURLs = new ArrayList<URL>();
 
     Object thisRef;
     HashMap<Integer, ArrayList<Method>> methods = new HashMap<Integer, ArrayList<Method>>();
@@ -53,19 +53,35 @@ public class MethodHandle {
             if (loaded) return clazz;
             try {
                 FileInputStream fis = new FileInputStream (className + ".class");
-                byte buf [] = new byte [fis.available()];
-                fis.read (buf);
-                fis.close ();
-                clazz =  defineClass (buf, 0, buf.length);
-                loaded = true;
-                return clazz;
+                return tryToLoadClass(fis); //try to load class locally
             } catch (IOException e) {
-                throw new ClassNotFoundException ();
             }
+            for (URL url: baseURLs) {
+                try {
+                    //look for class in available base URLs
+                    ///TODO: map baseURL to document we dowloaded earlier and use context of it here
+                    return tryToLoadClass(new URL(url.getProtocol(), url.getHost(), className + ".class").openStream());
+                } catch (Exception e) {
+                }
+            }
+            throw new ClassNotFoundException ();
+        }
+
+        private Class tryToLoadClass(InputStream in) throws IOException {
+            byte buf[] = new byte [in.available()];
+            in.read(buf);
+            in.close();
+            clazz =  defineClass (buf, 0, buf.length);
+            loaded = true;
+            return clazz;
         }
     }
 
     private static HashMap<String, OneClassClassloder> classes = new HashMap<String, OneClassClassloder>();
+
+    public static void addBaseURL(URL url) {
+        baseURLs.add(url);
+    }
 
     public static void addClass(String className) {
         classes.put(className, new OneClassClassloder(className));
@@ -89,6 +105,19 @@ public class MethodHandle {
 
     private static final String[] importPacks = new String[]{"", "java.lang", "com.excelsior.nothing"};
 
+    private boolean exists(String clazz) {
+        if (new File(clazz).exists()) return true;
+        for (URL url: baseURLs) {
+            try {
+                new URL(url.getProtocol(), url.getHost(), clazz).openConnection();
+                return true;
+            } catch (IOException e) {
+                continue;
+            }
+        }
+        return false;
+    }
+
     private Class lookForClass(String clazz) throws ClassNotFoundException {
         for (String imp: importPacks) {
             try {
@@ -98,7 +127,7 @@ public class MethodHandle {
             }
         }
 
-        if(new File(clazz + ".class").exists() && !classes.containsKey(clazz)) {
+        if(!classes.containsKey(clazz) && exists(clazz + ".class")) {
             addClass(clazz);
         }
 
@@ -211,7 +240,7 @@ public class MethodHandle {
             return null;
 
         } catch (Exception e) {
-//            e.printStackTrace();
+            e.printStackTrace();
             return null;
         }
     }

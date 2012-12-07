@@ -20,6 +20,8 @@ package com.excelsior.nothing;
 
 import javax.swing.text.JTextComponent;
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * @author kit
@@ -61,8 +63,8 @@ public class Sys {
         System.out.println("File " + file + " saved");
     }
 
-    public static String readText(String file) throws IOException {
-        LineNumberReader is = new LineNumberReader(new InputStreamReader(new BufferedInputStream(new FileInputStream(file))));
+    public static String readText(InputStream in) throws IOException {
+        LineNumberReader is = new LineNumberReader(new InputStreamReader(new BufferedInputStream(in)));
         String text = "";
         String line;
         while ((line = is.readLine()) != null) {
@@ -72,8 +74,29 @@ public class Sys {
         return text;
     }
 
+    public static String readText(String file) throws IOException {
+        return readText(new FileInputStream(file));
+    }
+
+    private static URL getBaseUrlFrom(URL url)
+    {
+        try {
+            return new URL(url.getProtocol() + "://" + url.getHost());
+        } catch (MalformedURLException e) {
+            assert false: "Bad base URL built";
+            return null;
+        }
+    }
+
     public static void open(String file) throws IOException {
-        String text = readText(file);
+        String text;
+        try {
+            URL url = new URL(file);
+            MethodHandle.addBaseURL(getBaseUrlFrom(url));
+            text = readText(url.openStream());
+        } catch (MalformedURLException e) {
+            text = readText(file);
+        }
         Main.TextWindow w = Main.system.createInternalFrame();
         w.setTitle(file);
         w.getPad().getEditor().setText(text);
