@@ -62,10 +62,10 @@ public class Sys {
     public static void save(String file) throws IOException {
         JTextPane cur = Main.getCurEditor();
         if (cur == null) return;
-        if (file.contains(".txt")) {
-            writeText(file, cur.getText());
-        } else if (file.contains(".tns")) {
+        if (file.endsWith(".tns")) {
             writeDocument(file, cur);
+        } else {
+            writeText(file, cur.getText());
         }
 
         Main.curTextWindow.setTitle(file);
@@ -139,15 +139,14 @@ public class Sys {
             w.setTitle(file);
             w.getPad().getEditor().setText(text);
         } catch (MalformedURLException e) {
-            if (file.contains(".txt")) {
+            if (file.endsWith(".tns")) {
+                doc = readDocument(file);
+                w.setTitle(file);
+                w.getPad().getEditor().setDocument(doc);
+            } else {
                 text = readText(file);
                 w.setTitle(file);
                 w.getPad().getEditor().setText(text);
-            } else if (file.contains(".tns")) {
-                doc = readDocument(file);
-
-                w.setTitle(file);
-                w.getPad().getEditor().setDocument(doc);
             }
         }
 
