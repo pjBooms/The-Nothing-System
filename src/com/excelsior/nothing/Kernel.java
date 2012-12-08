@@ -20,6 +20,11 @@ package com.excelsior.nothing;
 
 import com.excelsior.common.QuotedStringTokenizer;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -86,5 +91,25 @@ public class Kernel {
 
     public static Object getFromRegistry(String key) {
         return registry.get(key);
+    }
+
+    private static URL getBaseUrlFrom(URL url)
+    {
+        try {
+            return new URL(url.getProtocol() + "://" + url.getHost());
+        } catch (MalformedURLException e) {
+            assert false: "Bad base URL built";
+            return null;
+        }
+    }
+
+    public static InputStream getInputStream(String file) throws IOException {
+        try {
+            URL url = new URL(file);
+            MethodHandle.addBaseURL(getBaseUrlFrom(url));
+            return url.openStream();
+        } catch (MalformedURLException e) {
+            return new FileInputStream(file);
+        }
     }
 }

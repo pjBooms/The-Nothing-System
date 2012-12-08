@@ -13,6 +13,9 @@ import java.io.ObjectInputStream;
  * @author hedjuo
  */
 public class Button extends JButton {
+
+    private static final long serialVersionUID = 1030230214076481435l;
+
     private String cmd;
 
     private class MyActionListener implements ActionListener {

@@ -97,12 +97,11 @@ public class Sys {
     public static String readText(String file) throws IOException {
         return readText(new FileInputStream(file));
     }
-    public static Document readDocument(String fileName) throws IOException {
-        File file = new File(fileName);
+
+    private static Document readDocument(InputStream in) throws IOException {
         Document doc = null;
         try {
-            FileInputStream fis = new FileInputStream(file);
-            ObjectInput ois = new ObjectInputStream(new BufferedInputStream(fis));
+            ObjectInput ois = new ObjectInputStream(new BufferedInputStream(in));
             doc = (Document) ois.readObject();
             ois.close();
             System.out.println("Document successfully loaded.");
@@ -116,38 +115,22 @@ public class Sys {
         return doc;
     }
 
-    private static URL getBaseUrlFrom(URL url)
-    {
-        try {
-            return new URL(url.getProtocol() + "://" + url.getHost());
-        } catch (MalformedURLException e) {
-            assert false: "Bad base URL built";
-            return null;
-        }
-    }
-
     public static void open(String file) throws IOException {
         String text;
         Document doc;
 
         Main.TextWindow w = Main.system.createText();
 
-        try {
-            URL url = new URL(file);
-            MethodHandle.addBaseURL(getBaseUrlFrom(url));
-            text = readText(url.openStream());
+        InputStream in = Kernel.getInputStream(file);
+
+        if (file.endsWith(".tns")) {
+            doc = readDocument(in);
+            w.setTitle(file);
+            w.getPad().getEditor().setDocument(doc);
+        } else {
+            text = readText(in);
             w.setTitle(file);
             w.getPad().getEditor().setText(text);
-        } catch (MalformedURLException e) {
-            if (file.endsWith(".tns")) {
-                doc = readDocument(file);
-                w.setTitle(file);
-                w.getPad().getEditor().setDocument(doc);
-            } else {
-                text = readText(file);
-                w.setTitle(file);
-                w.getPad().getEditor().setText(text);
-            }
         }
 
     }
