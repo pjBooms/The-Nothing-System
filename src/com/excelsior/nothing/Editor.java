@@ -20,7 +20,9 @@ package com.excelsior.nothing;
 
 import javax.swing.*;
 import javax.swing.text.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.lang.reflect.Field;
 
 /**
  * @author kit
@@ -108,5 +110,32 @@ public class Editor {
         setCharacterAttributes(editor, start, end, sas, false);
     }
 
+    public static void setColor(String color) {
+        JEditorPane editor = Main.getCurEditor();
+        if (editor == null) return;
+        Color fg = null;
+        try {
+            Field f = Color.class.getDeclaredField(color.toUpperCase());
+            f.setAccessible(true);
+            fg = (Color) f.get(null);
+        } catch (NoSuchFieldException e) {
+            System.out.println("Unknown color: " + color);
+            return;
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        MutableAttributeSet attr = new SimpleAttributeSet();
+        StyleConstants.setForeground(attr, fg);
+        setCharacterAttributes(editor, attr, false);
+    }
+
+//    public static void insertPicture(String file) {
+//        JEditorPane editor = Main.getCurEditor();
+//        if (editor == null) return;
+//        StyledDocument doc = (StyledDocument) editor.getDocument();
+//        doc.getAtt
+//        Icon image = new ImageIcon(file);
+//
+//    }
 
 }

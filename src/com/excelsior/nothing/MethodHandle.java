@@ -207,6 +207,11 @@ public class MethodHandle {
             return Integer.valueOf(arg);
         } else if (c == long.class) {
             return Long.valueOf(arg);
+        } else if (arg.startsWith("@") && !c.isPrimitive()) {
+            Object o = Kernel.getFromRegistry(arg.substring(1));
+//            Class
+//            if (c.is)
+            return o;
         } else {
             throw new IllegalArgumentException("Wrong param type: " + c);
         }

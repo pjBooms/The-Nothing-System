@@ -30,11 +30,11 @@ import java.net.URL;
 public class Sys {
 
     public static void newText() {
-        Main.system.createInternalFrame();
+        Main.system.createText();
     }
 
     public static void newText(String title) {
-        Main.TextWindow w = Main.system.createInternalFrame();
+        Main.TextWindow w = Main.system.createText();
         w.setTitle(title);
     }
 
@@ -48,13 +48,13 @@ public class Sys {
         JTextComponent cur = Main.getCurEditor();
         if (cur == null) return;
         writeText(file, cur.getText());
-        Main.curWindow.setTitle(file);
+        Main.curTextWindow.setTitle(file);
         System.out.println("File " + file + " saved");
     }
 
     public static void save() throws IOException {
-        if (Main.curWindow == null) return;
-        String file = Main.curWindow.getTitle();
+        if (Main.curTextWindow == null) return;
+        String file = Main.curTextWindow.getTitle();
         if (!new File(file).exists()) {
             System.out.println("Please specify file name");
             return;
@@ -97,14 +97,14 @@ public class Sys {
         } catch (MalformedURLException e) {
             text = readText(file);
         }
-        Main.TextWindow w = Main.system.createInternalFrame();
+        Main.TextWindow w = Main.system.createText();
         w.setTitle(file);
         w.getPad().getEditor().setText(text);
     }
 
     public static void compile() throws Exception {
-        if (Main.curWindow == null) return;
-        String file = Main.curWindow.getTitle();
+        if (Main.curTextWindow == null) return;
+        String file = Main.curTextWindow.getTitle();
         if (!new File(file).exists()) {
             System.out.println("Please save file before compile");
             return;

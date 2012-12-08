@@ -29,6 +29,8 @@ import java.util.HashMap;
  */
 public class Kernel {
 
+    private static HashMap<String, Object> registry = new HashMap<String, Object>();
+
     private static HashMap<String, Boolean> cache = new HashMap<String, Boolean>();
 
     public static boolean isCommand(String line) {
@@ -76,5 +78,13 @@ public class Kernel {
         } catch (Exception e) {
 //            e.printStackTrace();
         }
+    }
+
+    public static void addToRegistry(String key, Object o) {
+        registry.put(key, o);
+    }
+
+    public static Object getFromRegistry(String key) {
+        return registry.get(key);
     }
 }
