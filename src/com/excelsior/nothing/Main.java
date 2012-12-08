@@ -218,6 +218,10 @@ public class Main extends JPanel {
         return (Panel) createInternalFrame(userPane, getFrameWidth(), getFrameHeight(), false);
     }
 
+    public Panel createPanel(JPanel panel) {
+        return (Panel) createInternalFrame(userPane, getFrameWidth(), getFrameHeight(), new Panel(panel));
+    }
+
     public JPanel getSystemPanel() {
         return panel;
     }

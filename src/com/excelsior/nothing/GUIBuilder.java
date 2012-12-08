@@ -22,18 +22,41 @@ public class GUIBuilder {
     static class Button extends JButton {
         private String cmd;
 
+        private class MyActionListener implements ActionListener {
+
+            public void actionPerformed(ActionEvent e) {
+                Kernel.executeCommand(cmd);
+            }
+        }
+
         Button(final String cmd) {
             this.cmd = cmd;
 
-            addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    Kernel.executeCommand(cmd);
-                }
-            });
+            addActionListener(new MyActionListener());
         }
 
         public void setCmd(String cmd) {
             this.cmd = cmd;
+        }
+
+        private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+            out.write(getX());
+            out.write(getY());
+            out.write(getWidth());
+            out.write(getHeight());
+            out.writeUTF(getText());
+            out.writeUTF(cmd);
+        }
+
+        private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+            int x = in.read();
+            int y = in.read();
+            int w = in.read();
+            int h = in.read();
+            setBounds(x, y, w, h);
+            setText(in.readUTF());
+            cmd = in.readUTF();
+            addActionListener(new MyActionListener());
         }
     }
 
@@ -49,7 +72,7 @@ public class GUIBuilder {
         try {
             FileOutputStream fstrm = new FileOutputStream(file);
             ObjectOutput ostrm = new ObjectOutputStream(fstrm);
-            ostrm.writeObject(Main.curPanel);
+            ostrm.writeObject(Main.curPanel.getPanel());
             ostrm.flush();
             fstrm.close();
             Main.curPanel.setTitle(file);
@@ -64,7 +87,9 @@ public class GUIBuilder {
             FileInputStream fin = new FileInputStream(file);
             ObjectInputStream istrm = new ObjectInputStream(fin);
             JPanel panel = (JPanel) istrm.readObject();
-            Main.curPanel.setTitle(file);
+
+            Main.Panel p = Main.system.createPanel(panel);
+            p.setTitle(file);
         } catch (IOException io) {
             // should put in status panel
             System.err.println("IOException: " + io.getMessage());
