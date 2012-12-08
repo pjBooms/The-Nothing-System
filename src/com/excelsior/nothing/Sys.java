@@ -18,8 +18,11 @@
 
 package com.excelsior.nothing;
 
-import javax.swing.text.JTextComponent;
+import javax.swing.*;
+import javax.swing.text.Document;
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * @author kit
@@ -28,11 +31,11 @@ import java.io.*;
 public class Sys {
 
     public static void newText() {
-        Main.system.createInternalFrame();
+        Main.system.createText();
     }
 
     public static void newText(String title) {
-        Main.TextWindow w = Main.system.createInternalFrame();
+        Main.TextWindow w = Main.system.createText();
         w.setTitle(title);
     }
 
@@ -42,27 +45,46 @@ public class Sys {
         os.close();
     }
 
+    public static void writeDocument(String fileName, JTextPane text) throws IOException {
+            File file = new File(fileName);
+            try {
+                FileOutputStream fos = new FileOutputStream(file);
+                ObjectOutput oos = new ObjectOutputStream(fos);
+                oos.writeObject(text.getDocument());
+                oos.close();
+                Main.curTextWindow.setTitle(file.getName());
+            } catch (IOException io) {
+                // should put in status panel
+                System.err.println("IOException: " + io.getMessage());
+            }
+        }
+
     public static void save(String file) throws IOException {
-        JTextComponent cur = Main.getCurEditor();
+        JTextPane cur = Main.getCurEditor();
         if (cur == null) return;
-        writeText(file, cur.getText());
-        Main.curWindow.setTitle(file);
+        if (file.contains(".txt")) {
+            writeText(file, cur.getText());
+        } else if (file.contains(".tns")) {
+            writeDocument(file, cur);
+        }
+
+        Main.curTextWindow.setTitle(file);
         System.out.println("File " + file + " saved");
     }
 
     public static void save() throws IOException {
-        if (Main.curWindow == null) return;
-        String file = Main.curWindow.getTitle();
+        if (Main.curTextWindow == null) return;
+        String file = Main.curTextWindow.getTitle();
         if (!new File(file).exists()) {
             System.out.println("Please specify file name");
             return;
         }
-        writeText(file, Main.getCurEditor().getText());
+        save(file);
         System.out.println("File " + file + " saved");
     }
 
-    public static String readText(String file) throws IOException {
-        LineNumberReader is = new LineNumberReader(new InputStreamReader(new BufferedInputStream(new FileInputStream(file))));
+    public static String readText(InputStream in) throws IOException {
+        LineNumberReader is = new LineNumberReader(new InputStreamReader(new BufferedInputStream(in)));
         String text = "";
         String line;
         while ((line = is.readLine()) != null) {
@@ -72,16 +94,68 @@ public class Sys {
         return text;
     }
 
+    public static String readText(String file) throws IOException {
+        return readText(new FileInputStream(file));
+    }
+    public static Document readDocument(String fileName) throws IOException {
+        File file = new File(fileName);
+        Document doc = null;
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            ObjectInput ois = new ObjectInputStream(new BufferedInputStream(fis));
+            doc = (Document) ois.readObject();
+            ois.close();
+            System.out.println("Document successfully loaded.");
+
+        } catch (IOException io) {
+            // should put in status panel
+            System.err.println("IOException: " + io.getMessage());
+        } catch (ClassNotFoundException cnf) {
+            System.err.println("IOException: " + cnf.getMessage());
+        }
+        return doc;
+    }
+
+    private static URL getBaseUrlFrom(URL url)
+    {
+        try {
+            return new URL(url.getProtocol() + "://" + url.getHost());
+        } catch (MalformedURLException e) {
+            assert false: "Bad base URL built";
+            return null;
+        }
+    }
+
     public static void open(String file) throws IOException {
-        String text = readText(file);
-        Main.TextWindow w = Main.system.createInternalFrame();
-        w.setTitle(file);
-        w.getPad().getEditor().setText(text);
+        String text;
+        Document doc;
+
+        Main.TextWindow w = Main.system.createText();
+
+        try {
+            URL url = new URL(file);
+            MethodHandle.addBaseURL(getBaseUrlFrom(url));
+            text = readText(url.openStream());
+            w.setTitle(file);
+            w.getPad().getEditor().setText(text);
+        } catch (MalformedURLException e) {
+            if (file.contains(".txt")) {
+                text = readText(file);
+                w.setTitle(file);
+                w.getPad().getEditor().setText(text);
+            } else if (file.contains(".tns")) {
+                doc = readDocument(file);
+
+                w.setTitle(file);
+                w.getPad().getEditor().setDocument(doc);
+            }
+        }
+
     }
 
     public static void compile() throws Exception {
-        if (Main.curWindow == null) return;
-        String file = Main.curWindow.getTitle();
+        if (Main.curTextWindow == null) return;
+        String file = Main.curTextWindow.getTitle();
         if (!new File(file).exists()) {
             System.out.println("Please save file before compile");
             return;

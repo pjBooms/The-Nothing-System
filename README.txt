@@ -81,7 +81,5 @@ If you cut through the Oberon system glitches you will get a lot of fun!
 
 To be continued ...
 
-
-
-
-
+----------------------------
+Dedicated to my daughter Varvara who doesn't want to see scary pictures in the Internet

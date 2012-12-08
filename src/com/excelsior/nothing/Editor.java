@@ -20,7 +20,11 @@ package com.excelsior.nothing;
 
 import javax.swing.*;
 import javax.swing.text.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.lang.reflect.Field;
+import com.excelsior.controls.Button;
 
 /**
  * @author kit
@@ -108,5 +112,59 @@ public class Editor {
         setCharacterAttributes(editor, start, end, sas, false);
     }
 
+    public static void setColor(String color) {
+        JEditorPane editor = Main.getCurEditor();
+        if (editor == null) return;
+        Color fg = null;
+        try {
+            Field f = Color.class.getDeclaredField(color.toUpperCase());
+            f.setAccessible(true);
+            fg = (Color) f.get(null);
+        } catch (NoSuchFieldException e) {
+            System.out.println("Unknown color: " + color);
+            return;
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        MutableAttributeSet attr = new SimpleAttributeSet();
+        StyleConstants.setForeground(attr, fg);
+        setCharacterAttributes(editor, attr, false);
+    }
+
+
+    public static void addButton(String name, String text, String cmd)
+    {
+        JTextPane textPane = Main.curTextWindow.getPad().getEditor();
+
+        Document doc = textPane.getDocument();
+
+        textPane.setCaretPosition(doc.getLength());
+
+        Style def = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
+
+        JButton button = new Button(cmd);
+        button.setText(text);
+
+        String styleName = "button-"+name;
+        Style s = textPane.addStyle(styleName, def);
+
+        StyleConstants.setComponent(s, button);
+
+        try {
+            doc.insertString(doc.getLength(), " ", textPane.getStyle(styleName));
+            int a = 1;
+        } catch (BadLocationException ble) {
+            System.out.println("Couldn't insert button.");
+        }
+    }
+
+//    public static void insertPicture(String file) {
+//        JEditorPane editor = Main.getCurEditor();
+//        if (editor == null) return;
+//        StyledDocument doc = (StyledDocument) editor.getDocument();
+//        doc.getAtt
+//        Icon image = new ImageIcon(file);
+//
+//    }
 
 }

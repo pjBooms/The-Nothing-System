@@ -32,7 +32,7 @@ import java.io.PrintStream;
 
 /**
  * @author kit
- * @author hedjuo
+ * @author hedjou
  * Date: 05.10.12
  */
 public class Main extends JPanel {
@@ -42,13 +42,13 @@ public class Main extends JPanel {
     private JSplitPane desktop = null;
 
     private static final int PREFERRED_WIDTH = 1280;
-    private static final int PREFERRED_HEIGHT = 800;
+    private static final int PREFERRED_HEIGHT = 600;
 
     private static final int DEFAULT_FRAME_X = 0;
     private static final int DEFAULT_FRAME_Y = 0;
 
     private static final int FRAMEOUT_WIDTH = 370;
-    private static final int FRAMEOUT_HEIGHT = 400;
+    private static final int FRAMEOUT_HEIGHT = 300;
 
     private static final int FRAMESYSTEM_WIDTH = FRAMEOUT_WIDTH;
     private static final int FRAMESYSTEM_HEIGHT = PREFERRED_HEIGHT - FRAMEOUT_HEIGHT;
@@ -57,7 +57,8 @@ public class Main extends JPanel {
     private static final int FRAME_HEIGHT = 450;
 
     public static Main system;
-    public static TextWindow curWindow;
+    public static TextWindow curTextWindow;
+    public static Panel curPanel;
     public static JTextPane curSelection;
 
     private static TextWindow commandsFrame;
@@ -113,10 +114,15 @@ public class Main extends JPanel {
     }
 
     public static JTextPane getCurEditor() {
-        return (curWindow != null)? curWindow.getPad().getEditor(): null;
+        return (curTextWindow != null)? curTextWindow.getPad().getEditor(): null;
     }
 
-    static class TextWindow extends JInternalFrame {
+    static abstract class Window extends JInternalFrame {
+
+        abstract JComponent getContent();
+    }
+
+    static class TextWindow extends Window {
         private Stylepad pad;
 
         private TextWindow(Stylepad pad) {
@@ -124,7 +130,7 @@ public class Main extends JPanel {
             pad.getEditor().addFocusListener(new FocusListener() {
                 public void focusGained(FocusEvent e) {
                     if ((TextWindow.this != commandsFrame) && (TextWindow.this != frameOut)) {
-                        curWindow = TextWindow.this;
+                        curTextWindow = TextWindow.this;
                     }
                 }
                 public void focusLost(FocusEvent e) {
@@ -135,17 +141,41 @@ public class Main extends JPanel {
         public Stylepad getPad() {
             return pad;
         }
+
+        @Override
+        JComponent getContent() {
+            return pad;
+        }
     }
 
+    static class Panel extends Window {
 
-    /**
-     * Creates a new frame in a given pane.
-     *
-     * @return TextWindow
-     */
-    public TextWindow createInternalFrame(JDesktopPane pane, int width, int height) {
-        TextWindow window = new TextWindow(new Stylepad());
+        private JPanel panel;
 
+        private Panel(JPanel panel) {
+            this.panel = panel;
+            panel.addFocusListener(new FocusListener() {
+
+                public void focusGained(FocusEvent e) {
+                    curPanel = Panel.this;
+                }
+
+                public void focusLost(FocusEvent e) {
+                }
+            });
+        }
+
+        public JPanel getPanel() {
+            return panel;
+        }
+
+        @Override
+        JComponent getContent() {
+            return panel;
+        }
+    }
+
+    public Window createInternalFrame(JDesktopPane pane, int width, int height, Window window) {
         window.setTitle("Frame " + windowCount + "  ");
 
         window.setClosable(true);
@@ -154,7 +184,7 @@ public class Main extends JPanel {
         window.setResizable(true);
 
         window.setBounds(20 * (windowCount % 10), 20 * (windowCount % 10), width, height);
-        window.setContentPane(window.getPad());
+        window.setContentPane(window.getContent());
 
         windowCount++;
 
@@ -170,8 +200,22 @@ public class Main extends JPanel {
         return window;
     }
 
-    public TextWindow createInternalFrame() {
-        return createInternalFrame(userPane, getFrameWidth(), getFrameHeight());
+    /**
+     * Creates a new frame in a given pane.
+     *
+     * @return TextWindow
+     */
+    public Window createInternalFrame(JDesktopPane pane, int width, int height, boolean text) {
+        Window window = text ? new TextWindow(new Stylepad()) : new Panel(new JPanel(null));
+        return createInternalFrame(pane, width, height, window);
+    }
+
+    public TextWindow createText() {
+        return (TextWindow) createInternalFrame(userPane, getFrameWidth(), getFrameHeight(), true);
+    }
+
+    public Panel createPanel() {
+        return (Panel) createInternalFrame(userPane, getFrameWidth(), getFrameHeight(), false);
     }
 
     public JPanel getSystemPanel() {
@@ -220,7 +264,7 @@ public class Main extends JPanel {
      */
     private void createDefaultFrame()
     {
-        TextWindow frame1 = createInternalFrame(userPane, 1, 1);
+        TextWindow frame1 = (TextWindow) createInternalFrame(userPane, 1, 1, true);
         frame1.setBounds(DEFAULT_FRAME_X, DEFAULT_FRAME_Y, FRAME_WIDTH, FRAME_HEIGHT);
         frame1.getPad().getEditor().setText("System.out.println hello\nAnother text");
     }
@@ -230,13 +274,13 @@ public class Main extends JPanel {
      */
     private void createCommandsFrame()
     {
-        commandsFrame = createInternalFrame(systemPane, 1, 1);
+        commandsFrame = (TextWindow) createInternalFrame(systemPane, 1, 1, true);
         commandsFrame.setBounds(0, FRAMEOUT_HEIGHT, FRAMESYSTEM_WIDTH, FRAMESYSTEM_HEIGHT);
         String text;
         try {
             text = Sys.readText("commands.txt");
         } catch (IOException e){
-            text = "Sys.newText\nSys.save\nSys.open\nSys.compile";
+            text = "Sys.createWindow\nSys.save\nSys.open\nSys.compile";
         }
 
         commandsFrame.getPad().getEditor().setText(text);
@@ -248,7 +292,7 @@ public class Main extends JPanel {
      */
     private void createOutputFrame()
     {
-        frameOut = createInternalFrame(systemPane, 1, 1);
+        frameOut = (TextWindow) createInternalFrame(systemPane, 1, 1, true);
         frameOut.setBounds(0, 0, FRAMEOUT_WIDTH, FRAMEOUT_HEIGHT);
         frameOut.getPad().getEditor().setText("");
         frameOut.setTitle("Output");
