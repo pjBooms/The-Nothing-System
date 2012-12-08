@@ -18,7 +18,8 @@
 
 package com.excelsior.nothing;
 
-import javax.swing.text.JTextComponent;
+import javax.swing.*;
+import javax.swing.text.Document;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -44,10 +45,29 @@ public class Sys {
         os.close();
     }
 
+    public static void writeDocument(String fileName, JTextPane text) throws IOException {
+            File file = new File(fileName);
+            try {
+                FileOutputStream fos = new FileOutputStream(file);
+                ObjectOutput oos = new ObjectOutputStream(fos);
+                oos.writeObject(text.getDocument());
+                oos.close();
+                Main.curTextWindow.setTitle(file.getName());
+            } catch (IOException io) {
+                // should put in status panel
+                System.err.println("IOException: " + io.getMessage());
+            }
+        }
+
     public static void save(String file) throws IOException {
-        JTextComponent cur = Main.getCurEditor();
+        JTextPane cur = Main.getCurEditor();
         if (cur == null) return;
-        writeText(file, cur.getText());
+        if (file.contains(".txt")) {
+            writeText(file, cur.getText());
+        } else if (file.contains(".tns")) {
+            writeDocument(file, cur);
+        }
+
         Main.curTextWindow.setTitle(file);
         System.out.println("File " + file + " saved");
     }
@@ -59,7 +79,7 @@ public class Sys {
             System.out.println("Please specify file name");
             return;
         }
-        writeText(file, Main.getCurEditor().getText());
+        save(file);
         System.out.println("File " + file + " saved");
     }
 
@@ -77,6 +97,24 @@ public class Sys {
     public static String readText(String file) throws IOException {
         return readText(new FileInputStream(file));
     }
+    public static Document readDocument(String fileName) throws IOException {
+        File file = new File(fileName);
+        Document doc = null;
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            ObjectInput ois = new ObjectInputStream(new BufferedInputStream(fis));
+            doc = (Document) ois.readObject();
+            ois.close();
+            System.out.println("Document successfully loaded.");
+
+        } catch (IOException io) {
+            // should put in status panel
+            System.err.println("IOException: " + io.getMessage());
+        } catch (ClassNotFoundException cnf) {
+            System.err.println("IOException: " + cnf.getMessage());
+        }
+        return doc;
+    }
 
     private static URL getBaseUrlFrom(URL url)
     {
@@ -90,16 +128,29 @@ public class Sys {
 
     public static void open(String file) throws IOException {
         String text;
+        Document doc;
+
+        Main.TextWindow w = Main.system.createText();
+
         try {
             URL url = new URL(file);
             MethodHandle.addBaseURL(getBaseUrlFrom(url));
             text = readText(url.openStream());
+            w.setTitle(file);
+            w.getPad().getEditor().setText(text);
         } catch (MalformedURLException e) {
-            text = readText(file);
+            if (file.contains(".txt")) {
+                text = readText(file);
+                w.setTitle(file);
+                w.getPad().getEditor().setText(text);
+            } else if (file.contains(".tns")) {
+                doc = readDocument(file);
+
+                w.setTitle(file);
+                w.getPad().getEditor().setDocument(doc);
+            }
         }
-        Main.TextWindow w = Main.system.createText();
-        w.setTitle(file);
-        w.getPad().getEditor().setText(text);
+
     }
 
     public static void compile() throws Exception {
