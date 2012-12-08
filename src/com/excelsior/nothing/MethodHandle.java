@@ -139,6 +139,14 @@ public class MethodHandle {
     }
 
     private Class findClass(String classRef) {
+        if (classRef.startsWith("@")) {
+            Object o = Kernel.getFromRegistry(classRef.substring(1));
+            if (o == null) {
+                return null;
+            }
+            thisRef = o;
+            return o.getClass();
+        }
         try {
             return lookForClass(classRef);
         } catch (ClassNotFoundException e) {
@@ -166,6 +174,7 @@ public class MethodHandle {
     public MethodHandle(String cmd){
         SplittedString ss = splitString(cmd);
         if (ss == null) throw new IllegalArgumentException();
+
         Class c = findClass(ss.start);
         if (c == null) throw new IllegalArgumentException();
         while (c!=null) {
@@ -209,9 +218,9 @@ public class MethodHandle {
             return Long.valueOf(arg);
         } else if (arg.startsWith("@") && !c.isPrimitive()) {
             Object o = Kernel.getFromRegistry(arg.substring(1));
-//            Class
-//            if (c.is)
-            return o;
+            if (o == null) return null;
+            if (c.isAssignableFrom(o.getClass())) return o;
+            throw new IllegalArgumentException("Wrong param type: " + c);
         } else {
             throw new IllegalArgumentException("Wrong param type: " + c);
         }

@@ -175,14 +175,7 @@ public class Main extends JPanel {
         }
     }
 
-    /**
-     * Creates a new frame in a given pane.
-     *
-     * @return TextWindow
-     */
-    public Window createInternalFrame(JDesktopPane pane, int width, int height, boolean text) {
-        Window window = text ? new TextWindow(new Stylepad()) : new Panel(new JPanel(null));
-
+    public Window createInternalFrame(JDesktopPane pane, int width, int height, Window window) {
         window.setTitle("Frame " + windowCount + "  ");
 
         window.setClosable(true);
@@ -205,6 +198,16 @@ public class Main extends JPanel {
         window.show();
 
         return window;
+    }
+
+    /**
+     * Creates a new frame in a given pane.
+     *
+     * @return TextWindow
+     */
+    public Window createInternalFrame(JDesktopPane pane, int width, int height, boolean text) {
+        Window window = text ? new TextWindow(new Stylepad()) : new Panel(new JPanel(null));
+        return createInternalFrame(pane, width, height, window);
     }
 
     public TextWindow createText() {
