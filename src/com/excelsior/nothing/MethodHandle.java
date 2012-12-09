@@ -206,7 +206,8 @@ public class MethodHandle {
     }
 
     private boolean canBeConvertedFromString(Class c) {
-        return (c == String.class) || (c == int.class) || (c == long.class);
+        return true;//
+        // (c == String.class) || (c == int.class) || (c == long.class);
     }
 
     private Object convertFromString(String arg, Class c) {

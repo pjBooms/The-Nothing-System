@@ -21,10 +21,8 @@ package com.excelsior.nothing;
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.lang.reflect.Field;
-import com.excelsior.controls.Button;
+import com.excelsior.nothing.controls.Button;
 
 /**
  * @author kit
@@ -142,7 +140,7 @@ public class Editor {
 
         Style def = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
 
-        JButton button = new Button(cmd);
+        JButton button = new Button(cmd, name);
         button.setText(text);
 
         String styleName = "button-"+name;
@@ -152,7 +150,6 @@ public class Editor {
 
         try {
             doc.insertString(doc.getLength(), " ", textPane.getStyle(styleName));
-            int a = 1;
         } catch (BadLocationException ble) {
             System.out.println("Couldn't insert button.");
         }

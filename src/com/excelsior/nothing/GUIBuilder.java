@@ -1,6 +1,7 @@
 package com.excelsior.nothing;
 
-import com.excelsior.controls.Button;
+import com.excelsior.nothing.controls.Button;
+import com.excelsior.nothing.controls.TextField;
 
 import javax.swing.*;
 import java.io.*;
@@ -14,17 +15,20 @@ public class GUIBuilder {
         Main.system.createPanel();
     }
 
-    public static void newPanel(String title) {
-        Main.Window w = Main.system.createPanel();
-        w.setTitle(title);
-    }
-
     public static void addButton(String name, String text, String cmd, int x, int y, int w, int h) {
-        JButton button = new Button(cmd);
+        JButton button = new Button(cmd, name);
         Kernel.addToRegistry(name, button);
         button.setText(text);
         Main.curPanel.add(name, button);
         button.setBounds(x, y, w, h);
+    }
+
+    public static void addTextField(String name, int x, int y, int w, int h) {
+        JTextField textField = new TextField(name);
+
+        Kernel.addToRegistry(name, textField);
+        Main.curPanel.add(name, textField);
+        textField.setBounds(x, y, w, h);
     }
 
     public static void save(String file) {
@@ -34,6 +38,7 @@ public class GUIBuilder {
             ostrm.writeObject(Main.curPanel.getPanel());
             ostrm.flush();
             fstrm.close();
+            System.out.println("File " + file + " saved");
             Main.curPanel.setTitle(file);
         } catch (IOException io) {
             // should put in status panel
