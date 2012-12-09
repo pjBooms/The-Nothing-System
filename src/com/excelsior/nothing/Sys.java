@@ -155,4 +155,18 @@ public class Sys {
         }
     }
 
+    public static void executeScript(String fileName) {
+        try {
+            FileInputStream fstream = new FileInputStream(fileName);
+            DataInputStream in = new DataInputStream(fstream);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String command;
+            //Read File Line By Line
+            while ((command = br.readLine()) != null)   {
+                Kernel.executeCommand(command);
+            }
+        } catch (IOException io) {
+            System.err.println("IOException: " + io.getMessage());
+        }
+    }
 }

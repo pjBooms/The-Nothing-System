@@ -1,4 +1,4 @@
-package com.excelsior.controls;
+package com.excelsior.nothing.controls;
 
 import com.excelsior.nothing.Kernel;
 
@@ -6,7 +6,6 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 
 /**
  * @author kit
@@ -25,8 +24,9 @@ public class Button extends JButton {
         }
     }
 
-    public Button(final String cmd) {
+    public Button(final String cmd, String name) {
         this.cmd = cmd;
+        this.setName(name);
 
         addActionListener(new MyActionListener());
     }
@@ -36,22 +36,12 @@ public class Button extends JButton {
     }
 
     private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        out.write(getX());
-        out.write(getY());
-        out.write(getWidth());
-        out.write(getHeight());
-        out.writeUTF(getText());
-        out.writeUTF(cmd);
+        out.defaultWriteObject();
     }
 
     private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        int x = in.read();
-        int y = in.read();
-        int w = in.read();
-        int h = in.read();
-        setBounds(x, y, w, h);
-        setText(in.readUTF());
-        cmd = in.readUTF();
+        in.defaultReadObject();
+        Kernel.addToRegistry(getName(), this);
         addActionListener(new MyActionListener());
     }
 }
