@@ -210,17 +210,23 @@ public class MethodHandle {
     }
 
     private Object convertFromString(String arg, Class c) {
-        if (c == String.class) {
+        if (arg.startsWith("&") && (c == String.class)) {
+            return arg.substring(1);
+        } else if (arg.startsWith("@") && !c.isPrimitive()) {
+            if (arg.indexOf('.') > 0) {
+                return Kernel.executeCommand(arg);
+            } else {
+                Object o = Kernel.getFromRegistry(arg.substring(1));
+                if (o == null) return null;
+                if (c.isAssignableFrom(o.getClass())) return o;
+                throw new IllegalArgumentException("Wrong param type: " + c);
+            }
+        } else if (c == String.class) {
             return arg;
         } else if (c == int.class) {
             return Integer.valueOf(arg);
         } else if (c == long.class) {
             return Long.valueOf(arg);
-        } else if (arg.startsWith("@") && !c.isPrimitive()) {
-            Object o = Kernel.getFromRegistry(arg.substring(1));
-            if (o == null) return null;
-            if (c.isAssignableFrom(o.getClass())) return o;
-            throw new IllegalArgumentException("Wrong param type: " + c);
         } else {
             throw new IllegalArgumentException("Wrong param type: " + c);
         }

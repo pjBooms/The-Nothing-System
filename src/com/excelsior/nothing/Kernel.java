@@ -51,15 +51,15 @@ public class Kernel {
         return m != null;
     }
 
-    public static void executeCommand(String line) {
+    public static Object executeCommand(String line) {
         cache.clear();
         QuotedStringTokenizer st = new QuotedStringTokenizer(line);
         String cmd = st.nextToken();
         if (cmd == null) {
-            return;
+            return null;
         }
         MethodHandle m = MethodHandle.getMethodHandle(cmd);
-        if (m == null) return;
+        if (m == null) return null;
 
         String firstArg = st.nextToken();
         ArrayList<String> args = new ArrayList<String>();
@@ -79,8 +79,9 @@ public class Kernel {
         }
 
         try {
-            m.invoke(args.toArray(new String[args.size()]));
+            return m.invoke(args.toArray(new String[args.size()]));
         } catch (Exception e) {
+            return null;
 //            e.printStackTrace();
         }
     }
