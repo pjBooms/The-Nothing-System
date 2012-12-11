@@ -22,40 +22,29 @@ import javax.swing.*;
 import javax.swing.text.JTextComponent;
 
 import java.awt.*;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
+import java.awt.Toolkit;
+import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
+
 /**
  * @author kit
- * @author hedjou
+ * @author hedjuo
  * Date: 05.10.12
  */
 public class Main extends JPanel {
 
     int windowCount = 0;
 
-    private JSplitPane desktop = null;
-
-    private static final int PREFERRED_WIDTH = 1280;
-    private static final int PREFERRED_HEIGHT = 600;
-
-    private static final int DEFAULT_FRAME_X = 0;
-    private static final int DEFAULT_FRAME_Y = 0;
-
-    private static final int FRAMEOUT_WIDTH = 370;
-    private static final int FRAMEOUT_HEIGHT = 300;
-
-    private static final int FRAMESYSTEM_WIDTH = FRAMEOUT_WIDTH;
-    private static final int FRAMESYSTEM_HEIGHT = PREFERRED_HEIGHT - FRAMEOUT_HEIGHT;
-
     private static final int FRAME_WIDTH = 600;
     private static final int FRAME_HEIGHT = 450;
+    private static final double WINDOW_DIVIDER_PERCENT = 0.8;
+    private static final double SYSTEM_WINDOW_DIVIDER_PERCENT = 0.5;
 
+    private JSplitPane desktop = null;
     public static Main system;
     public static TextWindow curTextWindow;
     public static Panel curPanel;
@@ -64,19 +53,23 @@ public class Main extends JPanel {
     private static TextWindow commandsFrame;
     private static TextWindow frameOut;
 
-    private static final int WINDOW_DIVIDER = 900;
-
     private JPanel panel = null;
 
     private JDesktopPane userPane = new JDesktopPane();
-    private JDesktopPane systemPane = new JDesktopPane();
+    private JSplitPane systemPane = null;
 
     public static void main(String[] args) {
         system = new Main();
         JFrame frame = new JFrame(system.getName());
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(system.getSystemPanel(), BorderLayout.CENTER);
-        system.getSystemPanel().setPreferredSize(new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT));
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+        int frameHeight = (int) (screenSize.getHeight()*0.8);
+        int frameWidth = (int) (screenSize.getWidth()*0.8);
+
+        system.getSystemPanel().setPreferredSize(new Dimension(frameWidth, frameHeight));
         frame.pack();
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -88,13 +81,11 @@ public class Main extends JPanel {
 
     public Main() {
         UIManager.put("swing.boldMetal", Boolean.FALSE);
-
         configureSystemPanel();
+        systemPane = createSystemPane();
         desktop = createSplitPane(userPane, systemPane);
         getSystemPanel().add(desktop, BorderLayout.CENTER);
         createDefaultFrame();
-        createOutputFrame();
-        createCommandsFrame();
 
         PrintStream stream = new PrintStream(new OutputStream(){
             @Override
@@ -133,8 +124,7 @@ public class Main extends JPanel {
                         curTextWindow = TextWindow.this;
                     }
                 }
-                public void focusLost(FocusEvent e) {
-                }
+                public void focusLost(FocusEvent e) {}
             });
         }
 
@@ -240,12 +230,45 @@ public class Main extends JPanel {
     }
 
     /**
+     * Configures system pane
+     */
+    private JSplitPane createSystemPane() {
+        JDesktopPane outputPane = new JDesktopPane();
+        createOutputFrame(outputPane);
+
+        JDesktopPane commandsPane = new JDesktopPane();
+        createCommandsFrame(commandsPane);
+
+        JSplitPane pane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, outputPane, commandsPane);
+        pane.setContinuousLayout(true);
+        pane.setOneTouchExpandable(true);
+        pane.setDividerLocation(0.5);
+        return pane;
+    }
+
+    /**
      * Configures main window panel.
      */
     private void configureSystemPanel()
     {
         panel = new JPanel();
         panel.setLayout(new BorderLayout());
+        panel.addComponentListener(new ComponentListener() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                desktop.setDividerLocation(WINDOW_DIVIDER_PERCENT);
+                systemPane.setDividerLocation(SYSTEM_WINDOW_DIVIDER_PERCENT);
+            }
+
+            @Override
+            public void componentMoved(ComponentEvent e) {}
+
+            @Override
+            public void componentShown(ComponentEvent e) {}
+
+            @Override
+            public void componentHidden(ComponentEvent e) {}
+        });
     }
 
     /**
@@ -255,12 +278,12 @@ public class Main extends JPanel {
      * @param systemPane -- pane containing command windows and standard output
      * @return split pane
      */
-    private JSplitPane createSplitPane(JDesktopPane userPane, JDesktopPane systemPane)
+    private JSplitPane createSplitPane(JComponent userPane, JComponent systemPane)
     {
         JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, userPane, systemPane);
         pane.setContinuousLayout(true);
         pane.setOneTouchExpandable(true);
-        pane.setDividerLocation(WINDOW_DIVIDER);
+        pane.setDividerLocation(WINDOW_DIVIDER_PERCENT);
         return pane;
     }
 
@@ -270,17 +293,16 @@ public class Main extends JPanel {
     private void createDefaultFrame()
     {
         TextWindow frame1 = (TextWindow) createInternalFrame(userPane, 1, 1, true);
-        frame1.setBounds(DEFAULT_FRAME_X, DEFAULT_FRAME_Y, FRAME_WIDTH, FRAME_HEIGHT);
+        frame1.setBounds(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
         frame1.getPad().getEditor().setText("System.out.println hello\nAnother text");
     }
 
     /**
      * Creates a commands frame.
      */
-    private void createCommandsFrame()
+    private void createCommandsFrame(JDesktopPane commandsPane)
     {
-        commandsFrame = (TextWindow) createInternalFrame(systemPane, 1, 1, true);
-        commandsFrame.setBounds(0, FRAMEOUT_HEIGHT, FRAMESYSTEM_WIDTH, FRAMESYSTEM_HEIGHT);
+        commandsFrame = (TextWindow) createInternalFrame(commandsPane, 50, 50, true);
         String text;
         try {
             text = Sys.readText("commands.txt");
@@ -290,17 +312,27 @@ public class Main extends JPanel {
 
         commandsFrame.getPad().getEditor().setText(text);
         commandsFrame.setTitle("System commands");
+        commandsFrame.isForegroundSet();
+        try {
+            commandsFrame.setMaximum(true);
+        } catch(PropertyVetoException e) {
+        }
+
+
     }
 
     /**
      * Creates a standard output frame.
      */
-    private void createOutputFrame()
+    private void createOutputFrame(JDesktopPane outputPane)
     {
-        frameOut = (TextWindow) createInternalFrame(systemPane, 1, 1, true);
-        frameOut.setBounds(0, 0, FRAMEOUT_WIDTH, FRAMEOUT_HEIGHT);
+        frameOut = (TextWindow) createInternalFrame(outputPane, 50, 50, true);
         frameOut.getPad().getEditor().setText("");
         frameOut.setTitle("Output");
+        try {
+            frameOut.setMaximum(true);
+        } catch(PropertyVetoException e) {
+        }
     }
 
 }
