@@ -41,8 +41,9 @@ public class Main extends JPanel {
 
     private static final int FRAME_WIDTH = 600;
     private static final int FRAME_HEIGHT = 450;
-    private static final double WINDOW_DIVIDER_PERCENT = 0.8;
-    private static final double SYSTEM_WINDOW_DIVIDER_PERCENT = 0.5;
+    private static final double MAIN_WINDOW_DIVIDER_FRACTION = 0.8;
+    private static final double SYSTEM_PANE_DIVIDER_FRACTION = 0.5;
+    private static final double INITIAL_MAIN_TO_SCREEN_SIZE_FRACTION = 0.8;
 
     private JSplitPane desktop = null;
     public static Main system;
@@ -66,8 +67,8 @@ public class Main extends JPanel {
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-        int frameHeight = (int) (screenSize.getHeight()*0.8);
-        int frameWidth = (int) (screenSize.getWidth()*0.8);
+        int frameHeight = (int) (screenSize.getHeight()*INITIAL_MAIN_TO_SCREEN_SIZE_FRACTION);
+        int frameWidth = (int) (screenSize.getWidth()*INITIAL_MAIN_TO_SCREEN_SIZE_FRACTION);
 
         system.getSystemPanel().setPreferredSize(new Dimension(frameWidth, frameHeight));
         frame.pack();
@@ -144,13 +145,10 @@ public class Main extends JPanel {
 
         private Panel(JPanel panel) {
             this.panel = panel;
-            panel.addFocusListener(new FocusListener() {
-
+            panel.addFocusListener(new FocusAdapter() {
+                @Override
                 public void focusGained(FocusEvent e) {
                     curPanel = Panel.this;
-                }
-
-                public void focusLost(FocusEvent e) {
                 }
             });
         }
@@ -253,21 +251,12 @@ public class Main extends JPanel {
     {
         panel = new JPanel();
         panel.setLayout(new BorderLayout());
-        panel.addComponentListener(new ComponentListener() {
+        panel.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                desktop.setDividerLocation(WINDOW_DIVIDER_PERCENT);
-                systemPane.setDividerLocation(SYSTEM_WINDOW_DIVIDER_PERCENT);
+                desktop.setDividerLocation(MAIN_WINDOW_DIVIDER_FRACTION);
+                systemPane.setDividerLocation(SYSTEM_PANE_DIVIDER_FRACTION);
             }
-
-            @Override
-            public void componentMoved(ComponentEvent e) {}
-
-            @Override
-            public void componentShown(ComponentEvent e) {}
-
-            @Override
-            public void componentHidden(ComponentEvent e) {}
         });
     }
 
@@ -283,7 +272,7 @@ public class Main extends JPanel {
         JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, userPane, systemPane);
         pane.setContinuousLayout(true);
         pane.setOneTouchExpandable(true);
-        pane.setDividerLocation(WINDOW_DIVIDER_PERCENT);
+        pane.setDividerLocation(MAIN_WINDOW_DIVIDER_FRACTION);
         return pane;
     }
 
@@ -329,6 +318,10 @@ public class Main extends JPanel {
         frameOut = (TextWindow) createInternalFrame(outputPane, 50, 50, true);
         frameOut.getPad().getEditor().setText("");
         frameOut.setTitle("Output");
+        frameOut.setClosable(false);
+        frameOut.setIconifiable(false);
+        frameOut.setMaximizable(false);
+
         try {
             frameOut.setMaximum(true);
         } catch(PropertyVetoException e) {
