@@ -146,8 +146,6 @@ public class Editor {
 
         Document doc = textPane.getDocument();
 
-        textPane.setCaretPosition(doc.getLength());
-
         Style def = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
 
         JButton button = new Button(cmd, name);
@@ -159,7 +157,7 @@ public class Editor {
         StyleConstants.setComponent(s, button);
 
         try {
-            doc.insertString(doc.getLength(), " ", textPane.getStyle(styleName));
+            doc.insertString(textPane.getCaretPosition(), " ", textPane.getStyle(styleName));
         } catch (BadLocationException ble) {
             System.out.println("Couldn't insert button.");
         }

@@ -15,11 +15,8 @@ public class Calc
         ScriptEngine engine = mgr.getEngineByName("JavaScript");
 
         try {
-
             int val = ((Double) engine.eval(expression)).intValue();
-            System.out.println(val);
             return val;
-
         } catch(ScriptException se) {
             System.out.println("Error: "+se.getMessage());
             return 0;
