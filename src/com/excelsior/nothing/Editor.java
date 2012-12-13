@@ -21,6 +21,7 @@ package com.excelsior.nothing;
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
+import java.io.*;
 import java.lang.reflect.Field;
 import com.excelsior.nothing.controls.Button;
 
@@ -129,6 +130,15 @@ public class Editor {
         setCharacterAttributes(editor, attr, false);
     }
 
+    public static void setFontSize(int size) {
+        JEditorPane editor = Main.getCurEditor();
+        if (editor != null) {
+            SimpleAttributeSet sas = new SimpleAttributeSet();
+            StyleConstants.setFontSize(sas, size);
+            setCharacterAttributes(editor, sas, false);
+        }
+    }
+
 
     public static void addButton(String name, String text, String cmd)
     {
@@ -163,5 +173,61 @@ public class Editor {
 //        Icon image = new ImageIcon(file);
 //
 //    }
+
+    public static void writeDocument(String fileName, JTextPane text) throws IOException {
+            File file = new File(fileName);
+            try {
+                FileOutputStream fos = new FileOutputStream(file);
+                ObjectOutput oos = new ObjectOutputStream(fos);
+                oos.writeObject(text.getDocument());
+                oos.close();
+                Main.curTextWindow.setTitle(file.getName());
+            } catch (IOException io) {
+                // should put in status panel
+                System.err.println("IOException: " + io.getMessage());
+            }
+        }
+
+    static Document readDocument(InputStream in) throws IOException {
+            Document doc = null;
+            try {
+                ObjectInput ois = new ObjectInputStream(new BufferedInputStream(in));
+                doc = (Document) ois.readObject();
+                ois.close();
+                System.out.println("Document successfully loaded.");
+
+            } catch (IOException io) {
+                // should put in status panel
+                System.err.println("IOException: " + io.getMessage());
+            } catch (ClassNotFoundException cnf) {
+                System.err.println("IOException: " + cnf.getMessage());
+            }
+            return doc;
+        }
+
+    public static void open(String file) throws IOException {
+        Document doc;
+
+        InputStream in = Kernel.getInputStream(file);
+        if (in == null) {
+            return;
+        }
+
+        Main.TextWindow w = Main.system.createText();
+
+        doc = Editor.readDocument(in);
+        w.setTitle(file);
+        w.getPad().getEditor().setDocument(doc);
+    }
+
+    public static void save(String file) throws IOException {
+        JTextPane cur = Main.getCurEditor();
+        Editor.writeDocument(file, cur);
+
+        Main.curTextWindow.setTitle(file);
+        System.out.println("File " + file + " saved");
+    }
+
+
 
 }

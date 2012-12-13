@@ -20,6 +20,7 @@ package com.excelsior.nothing;
 
 import com.excelsior.common.QuotedStringTokenizer;
 
+import javax.swing.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -110,6 +111,14 @@ public class Kernel {
             MethodHandle.addBaseURL(getBaseUrlFrom(url));
             return url.openStream();
         } catch (MalformedURLException e) {
+            if (file.equals("...") ) {
+                JFileChooser dialog = new JFileChooser(".");
+                if (dialog.showDialog(Main.system, "Open") == JFileChooser.APPROVE_OPTION)
+                    file = dialog.getSelectedFile().getAbsolutePath();
+                else {
+                    return null;
+                }
+            }
             return new FileInputStream(file);
         }
     }

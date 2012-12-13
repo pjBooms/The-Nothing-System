@@ -48,7 +48,9 @@ public class GUIBuilder {
 
     public static void open(String file) {
         try {
-            ObjectInputStream istrm = new ObjectInputStream(Kernel.getInputStream(file));
+            InputStream in = Kernel.getInputStream(file);
+            if (in == null) return;
+            ObjectInputStream istrm = new ObjectInputStream(in);
             JPanel panel = (JPanel) istrm.readObject();
 
             Main.Panel p = Main.system.createPanel(panel);
