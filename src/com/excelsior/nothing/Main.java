@@ -18,6 +18,7 @@
 
 package com.excelsior.nothing;
 
+import com.excelsior.nothing.controls.Panel;
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
 
@@ -48,7 +49,7 @@ public class Main extends JPanel {
     private JSplitPane desktop = null;
     public static Main system;
     public static TextWindow curTextWindow;
-    public static Panel curPanel;
+    public static Frame curPanel;
     public static JTextPane curSelection;
 
     private static TextWindow commandsFrame;
@@ -139,16 +140,16 @@ public class Main extends JPanel {
         }
     }
 
-    static class Panel extends Window {
+    static class Frame extends Window {
 
         private JPanel panel;
 
-        private Panel(JPanel panel) {
+        private Frame(JPanel panel) {
             this.panel = panel;
             panel.addFocusListener(new FocusAdapter() {
                 @Override
                 public void focusGained(FocusEvent e) {
-                    curPanel = Panel.this;
+                    curPanel = Frame.this;
                 }
             });
         }
@@ -194,7 +195,7 @@ public class Main extends JPanel {
      * @return TextWindow
      */
     public Window createInternalFrame(JDesktopPane pane, int width, int height, boolean text) {
-        Window window = text ? new TextWindow(new Stylepad()) : new Panel(new JPanel(null));
+        Window window = text ? new TextWindow(new Stylepad()) : new Frame(new Panel());
         return createInternalFrame(pane, width, height, window);
     }
 
@@ -202,13 +203,13 @@ public class Main extends JPanel {
         return (TextWindow) createInternalFrame(userPane, getFrameWidth(), getFrameHeight(), true);
     }
 
-    public Panel createPanel() {
-        curPanel = (Panel) createInternalFrame(userPane, getFrameWidth(), getFrameHeight(), false);
+    public Frame createPanel() {
+        curPanel = (Frame) createInternalFrame(userPane, getFrameWidth(), getFrameHeight(), false);
         return curPanel;
     }
 
-    public Panel createPanel(JPanel panel) {
-        return (Panel) createInternalFrame(userPane, getFrameWidth(), getFrameHeight(), new Panel(panel));
+    public Frame createPanel(JPanel panel) {
+        return (Frame) createInternalFrame(userPane, getFrameWidth(), getFrameHeight(), new Frame(panel));
     }
 
     public JPanel getSystemPanel() {
