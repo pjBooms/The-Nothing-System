@@ -1,4 +1,15 @@
 Sys.newText
-Sys.save 
-Sys.open
+
+Sys.save
+
+Sys.open ^ 
+  SampleApp.java Editor.tool 
+  GUIBuilder.tool Calc.pnl commands.txt Calculator.java
+
+  commands.txt  ftp://172.16.23.14/say_hello_document.txt
+
 Sys.compile
+
+SampleApp.sayHello
+
+Sys.executeScript Calc.pnl

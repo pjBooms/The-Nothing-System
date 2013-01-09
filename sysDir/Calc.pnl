@@ -1,0 +1,16 @@
+GUIBuilder.newPanel "My Panel"
+GUIBuilder.addTextField text 10 10 139 25
+GUIBuilder.addButton button1 "1" "Calculator.appendText @text 1" 10 36 45 45
+GUIBuilder.addButton button2 "2" "Calculator.appendText @text 2" 56 36 45 45
+GUIBuilder.addButton button3 "3" "Calculator.appendText @text 3" 102 36 45 45
+GUIBuilder.addButton button4 "4" "Calculator.appendText @text 4" 10 82 45 45
+GUIBuilder.addButton button5 "5" "Calculator.appendText @text 5" 56 82 45 45
+GUIBuilder.addButton button6 "6" "Calculator.appendText @text 6" 102 82 45 45
+GUIBuilder.addButton button7 "7" "Calculator.appendText @text 7" 10 128 45 45
+GUIBuilder.addButton button8 "8" "Calculator.appendText @text 8" 56 128 45 45
+GUIBuilder.addButton button9 "9" "Calculator.appendText @text 9" 102 128 45 45
+GUIBuilder.addButton buttonAdd "+" "Calculator.appendText @text +" 10 174 45 45
+GUIBuilder.addButton button0 "0" "Calculator.appendText @text 0" 56 174 45 45
+GUIBuilder.addButton buttonSub "-" "Calculator.appendText @text -" 102 174 45 45
+GUIBuilder.addButton buttonEval "=" "Calculator.eval @text" 10 220 137 45
+
