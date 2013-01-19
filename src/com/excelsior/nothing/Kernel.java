@@ -105,6 +105,16 @@ public class Kernel {
         }
     }
 
+    public static String checkThreeDots(String file) {
+        if (file.equals("...") ) {
+            JFileChooser dialog = new JFileChooser(".");
+            if (dialog.showDialog(Main.system, "Open") == JFileChooser.APPROVE_OPTION) {
+                return dialog.getSelectedFile().getAbsolutePath();
+            }
+        }
+        return file;
+    }
+
     public static InputStream getInputStream(String file) throws IOException {
         try {
             URL url = new URL(file);
@@ -112,12 +122,7 @@ public class Kernel {
             return url.openStream();
         } catch (MalformedURLException e) {
             if (file.equals("...") ) {
-                JFileChooser dialog = new JFileChooser(".");
-                if (dialog.showDialog(Main.system, "Open") == JFileChooser.APPROVE_OPTION)
-                    file = dialog.getSelectedFile().getAbsolutePath();
-                else {
-                    return null;
-                }
+                return null;
             }
             return new FileInputStream(file);
         }

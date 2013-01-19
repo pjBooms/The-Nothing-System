@@ -80,7 +80,7 @@ public class Sys {
     public static void open(String file) throws IOException {
         String text;
 
-        InputStream in = Kernel.getInputStream(file);
+        InputStream in = Kernel.getInputStream(file = Kernel.checkThreeDots(file));
         if (in == null) return;
 
         Main.TextWindow w = Main.system.createText();

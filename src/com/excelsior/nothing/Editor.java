@@ -206,7 +206,7 @@ public class Editor {
     public static void open(String file) throws IOException {
         Document doc;
 
-        InputStream in = Kernel.getInputStream(file);
+        InputStream in = Kernel.getInputStream(file = Kernel.checkThreeDots(file));
         if (in == null) {
             return;
         }

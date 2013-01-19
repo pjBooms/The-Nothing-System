@@ -65,7 +65,7 @@ public class GUIBuilder {
 
     public static void open(String file) {
         try {
-            InputStream in = Kernel.getInputStream(file);
+            InputStream in = Kernel.getInputStream(file = Kernel.checkThreeDots(file));
             if (in == null) return;
             ObjectInputStream istrm = new ObjectInputStream(in);
             JPanel panel = (JPanel) istrm.readObject();
