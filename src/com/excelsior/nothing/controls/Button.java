@@ -18,6 +18,8 @@
 package com.excelsior.nothing.controls;
 
 import com.excelsior.nothing.Kernel;
+import com.excelsior.nothing.persistance.Persistent;
+import com.excelsior.nothing.persistance.PersistentObjectInputStream;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -31,11 +33,9 @@ import java.io.ObjectOutput;
  * @author kit
  * @author hedjuo
  */
-public class Button extends JButton implements Externalizable {
+public class Button extends JButton implements Persistent {
 
-    private static final long serialVersionUID = 1030230214076481435l;
-
-    private static final int SERIAL_VERSION = 1;
+    private static final long serialVersionUID = 1;
 
     private String cmd;
 
@@ -61,16 +61,14 @@ public class Button extends JButton implements Externalizable {
     }
 
     public void writeExternal(ObjectOutput out) throws IOException {
-        out.write(SERIAL_VERSION);
         Externalization.writeExternal(this, out);
         out.writeUTF(getText());
         out.writeUTF(cmd);
     }
 
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        int v = in.read();
-        if (v != SERIAL_VERSION) {
-            throw new IOException("Unexpected Button version: " + v);
+        if (serialVersionUID != PersistentObjectInputStream.getSerializedVersion(this.getClass(), in)) {
+            throw new IOException("Unexpected Button version");
         }
         Externalization.readExternal(this, in);
         setText(in.readUTF());

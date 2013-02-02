@@ -24,6 +24,8 @@ import java.awt.*;
 import java.io.*;
 import java.lang.reflect.Field;
 import com.excelsior.nothing.controls.Button;
+import com.excelsior.nothing.persistance.PersistentObjectInputStream;
+import com.excelsior.nothing.persistance.PersistentObjectOutputStream;
 
 /**
  * @author kit
@@ -176,7 +178,7 @@ public class Editor {
             File file = new File(fileName);
             try {
                 FileOutputStream fos = new FileOutputStream(file);
-                ObjectOutput oos = new ObjectOutputStream(fos);
+                ObjectOutput oos = new PersistentObjectOutputStream(fos);
                 oos.writeObject(text.getDocument());
                 oos.close();
                 Main.curTextWindow.setTitle(file.getName());
@@ -189,7 +191,7 @@ public class Editor {
     static Document readDocument(InputStream in) throws IOException {
             Document doc = null;
             try {
-                ObjectInput ois = new ObjectInputStream(new BufferedInputStream(in));
+                ObjectInput ois = new PersistentObjectInputStream(new BufferedInputStream(in));
                 doc = (Document) ois.readObject();
                 ois.close();
                 System.out.println("Document successfully loaded.");

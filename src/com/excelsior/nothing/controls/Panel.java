@@ -17,6 +17,9 @@
 */
 package com.excelsior.nothing.controls;
 
+import com.excelsior.nothing.persistance.Persistent;
+import com.excelsior.nothing.persistance.PersistentObjectInputStream;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.Externalizable;
@@ -29,17 +32,14 @@ import java.io.ObjectOutput;
  *
  * @author kit
  */
-public class Panel extends JPanel implements Externalizable {
-    private static final long serialVersionUID = 1030230214076481436l;
-
-    public static final int SERIAL_VERSION = 1;
+public class Panel extends JPanel implements Persistent {
+    private static final long serialVersionUID = 1;
 
     public Panel() {
         super(null);
     }
 
     public void writeExternal(ObjectOutput out) throws IOException {
-        out.write(SERIAL_VERSION);
         Externalization.writeExternal(this, out);
         out.writeInt(getComponentCount());
         for (Component c: getComponents()) {
@@ -48,9 +48,8 @@ public class Panel extends JPanel implements Externalizable {
     }
 
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        int v = in.read();
-        if (v != SERIAL_VERSION) {
-            throw new IOException("Unexpected TextField version: " + v);
+        if (serialVersionUID != PersistentObjectInputStream.getSerializedVersion(this.getClass(), in)) {
+            throw new IOException("Unexpected Panel version");
         }
         Externalization.readExternal(this, in);
         int cou = in.readInt();

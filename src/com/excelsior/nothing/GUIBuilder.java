@@ -19,6 +19,8 @@ package com.excelsior.nothing;
 
 import com.excelsior.nothing.controls.Button;
 import com.excelsior.nothing.controls.TextField;
+import com.excelsior.nothing.persistance.PersistentObjectInputStream;
+import com.excelsior.nothing.persistance.PersistentObjectOutputStream;
 
 import javax.swing.*;
 import java.io.*;
@@ -51,7 +53,7 @@ public class GUIBuilder {
     public static void save(String file) {
         try {
             FileOutputStream fstrm = new FileOutputStream(file);
-            ObjectOutput ostrm = new ObjectOutputStream(fstrm);
+            ObjectOutput ostrm = new PersistentObjectOutputStream(fstrm);
             ostrm.writeObject(Main.curPanel.getPanel());
             ostrm.flush();
             fstrm.close();
@@ -67,7 +69,7 @@ public class GUIBuilder {
         try {
             InputStream in = Kernel.getInputStream(file = Kernel.checkThreeDots(file));
             if (in == null) return;
-            ObjectInputStream istrm = new ObjectInputStream(in);
+            ObjectInputStream istrm = new PersistentObjectInputStream(in);
             JPanel panel = (JPanel) istrm.readObject();
 
             Main.Frame p = Main.system.createPanel(panel);
