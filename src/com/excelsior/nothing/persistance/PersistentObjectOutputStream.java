@@ -17,7 +17,7 @@
 */
 package com.excelsior.nothing.persistance;
 
-import com.sun.java.util.jar.pack.*;
+//import com.sun.java.util.jar.pack.*;
 
 import java.io.*;
 import java.lang.reflect.Field;
